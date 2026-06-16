@@ -9,7 +9,7 @@ const About = () => {
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: '2s' }}></div>
         </div>
-        
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
             <h1 className="text-5xl md:text-6xl font-extrabold mb-6">
@@ -31,12 +31,12 @@ const About = () => {
           </h2>
           <div className="bg-white rounded-2xl shadow-xl p-8 border-2 border-purple-100">
             <p className="text-lg text-gray-700 leading-relaxed mb-4">
-              NexaStore was founded with a simple mission: to provide customers with access to high-quality products 
-              at competitive prices, all while delivering an exceptional shopping experience. We believe that online 
+              NexaStore was founded with a simple mission: to provide customers with access to high-quality products
+              at competitive prices, all while delivering an exceptional shopping experience. We believe that online
               shopping should be easy, secure, and enjoyable.
             </p>
             <p className="text-lg text-gray-700 leading-relaxed">
-              Today, we serve thousands of satisfied customers worldwide, offering a curated selection of products 
+              Today, we serve thousands of satisfied customers worldwide, offering a curated selection of products
               across multiple categories including electronics, fashion, home goods, and more.
             </p>
           </div>

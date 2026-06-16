@@ -38,9 +38,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex w-full overflow-hidden">
       {/* Left Side - Login Form - Narrower */}
-      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white lg:w-[40%] w-full">
+      <div className="flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white lg:w-[40%] w-full min-h-screen">
         <div className="max-w-md w-full space-y-8">
           {/* Logo & Title */}
           <div className="text-center">
@@ -169,10 +169,10 @@ const Login = () => {
       </div>
 
       {/* Right Side - Background Image - Wider, No Overlay, No Text */}
-      <div className="hidden lg:block lg:w-[60%] relative overflow-hidden">
+      <div className="hidden lg:block lg:w-[60%] relative overflow-hidden min-h-screen">
         {/* Full Background Image - No Overlay */}
         <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: 'url(/login_image.png)',
           }}

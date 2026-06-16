@@ -20,7 +20,7 @@ import AdminRoute from './components/AdminRoute';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen">
+      <div className="min-h-screen w-full overflow-x-hidden">
         <Navbar />
         <Toaster position="top-right" />
         <Routes>
