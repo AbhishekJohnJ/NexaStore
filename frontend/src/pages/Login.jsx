@@ -99,10 +99,10 @@ const Login = () => {
           </div>
         </form>
 
-        <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm font-medium text-blue-800 mb-2">Demo Credentials:</p>
-          <p className="text-xs text-blue-700">Admin: admin@nexastore.com / admin123</p>
-          <p className="text-xs text-blue-700">User: user@nexastore.com / user123</p>
+        <div className="mt-4 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+          <p className="text-sm font-medium text-purple-800 mb-2">Demo Credentials:</p>
+          <p className="text-xs text-purple-700">Admin: admin@nexastore.com / admin123</p>
+          <p className="text-xs text-purple-700">User: user@nexastore.com / user123</p>
         </div>
       </div>
     </div>

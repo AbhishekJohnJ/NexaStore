@@ -33,7 +33,7 @@ const Profile = () => {
                 className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
                   user.role === 'admin'
                     ? 'bg-purple-100 text-purple-800'
-                    : 'bg-blue-100 text-blue-800'
+                    : 'bg-purple-100 text-purple-800'
                 }`}
               >
                 {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
