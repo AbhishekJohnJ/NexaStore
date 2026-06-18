@@ -22,6 +22,17 @@ export const getProducts = async (req, res) => {
       query.category = req.query.category;
     }
 
+    // Filter by price range
+    if (req.query.minPrice || req.query.maxPrice) {
+      query.price = {};
+      if (req.query.minPrice) {
+        query.price.$gte = Number(req.query.minPrice);
+      }
+      if (req.query.maxPrice) {
+        query.price.$lte = Number(req.query.maxPrice);
+      }
+    }
+
     // Sorting
     let sort = {};
     if (req.query.sort) {

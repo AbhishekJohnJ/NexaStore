@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
 
@@ -11,6 +12,7 @@ const statusColors = {
 };
 
 const Orders = () => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [cancellingOrder, setCancellingOrder] = useState(null);
@@ -117,7 +119,7 @@ const Orders = () => {
                 {order.products.map((item, index) => (
                   <div
                     key={index}
-                    className="flex items-center space-x-4 mb-3 last:mb-0"
+                    className="flex items-center space-x-4 mb-3 last:mb-0 pb-3 border-b last:border-b-0"
                   >
                     <img
                       src={item.image}
@@ -130,9 +132,17 @@ const Orders = () => {
                         Quantity: {item.quantity} × ${item.price.toFixed(2)}
                       </p>
                     </div>
-                    <p className="font-bold text-gray-800">
-                      ${(item.quantity * item.price).toFixed(2)}
-                    </p>
+                    <div className="flex items-center gap-3">
+                      <p className="font-bold text-gray-800">
+                        ${(item.quantity * item.price).toFixed(2)}
+                      </p>
+                      <button
+                        onClick={() => navigate(`/product/${item.product}`)}
+                        className="px-4 py-2 bg-gradient-to-r from-purple-600 to-purple-800 text-white text-sm font-medium rounded-lg hover:from-purple-700 hover:to-purple-900 transition-all duration-200 shadow-md hover:shadow-lg"
+                      >
+                        View
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

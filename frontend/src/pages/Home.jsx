@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useSearchParams, useLocation, Link } from 'react-router-dom';
 import api from '../utils/api';
 import ProductCard from '../components/ProductCard';
@@ -28,6 +28,14 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [priceFilter, setPriceFilter] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+
+  // Debounced states to prevent UI hanging
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [debouncedMinPrice, setDebouncedMinPrice] = useState('');
+  const [debouncedMaxPrice, setDebouncedMaxPrice] = useState('');
 
   // Sync search query from URL
   useEffect(() => {
@@ -35,23 +43,38 @@ const Home = () => {
     setSearchQuery(search);
   }, [location.search, searchParams]);
 
+  // Debounce user inputs
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      setDebouncedMinPrice(minPrice);
+      setDebouncedMaxPrice(maxPrice);
+    }, 500);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery, minPrice, maxPrice]);
+
   // Fetch products when dependencies change
   useEffect(() => {
     fetchProducts();
-  }, [searchQuery, selectedCategory, sortBy, page]);
+  }, [debouncedSearchQuery, selectedCategory, sortBy, page, debouncedMinPrice, debouncedMaxPrice]);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
       const category = selectedCategory === 'All' ? '' : selectedCategory;
       
       const { data } = await api.get('/products', {
         params: {
-          search: searchQuery,
+          search: debouncedSearchQuery,
           category,
           sort: sortBy,
           page,
           limit: 12,
+          minPrice: debouncedMinPrice || undefined,
+          maxPrice: debouncedMaxPrice || undefined,
         },
       });
 
@@ -63,7 +86,7 @@ const Home = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [debouncedSearchQuery, selectedCategory, sortBy, page, debouncedMinPrice, debouncedMaxPrice]);
 
   const handleSearchChange = (e) => {
     const value = e.target.value;
@@ -76,8 +99,8 @@ const Home = () => {
     setPage(1);
   };
 
-  const handleCategoryChange = (category) => {
-    setSelectedCategory(category);
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
     setPage(1);
   };
 
@@ -86,28 +109,67 @@ const Home = () => {
     setPage(1);
   };
 
+  const handlePriceFilterChange = (e) => {
+    const value = e.target.value;
+    setPriceFilter(value);
+    setPage(1);
+
+    if (value === '') {
+      setMinPrice('');
+      setMaxPrice('');
+    } else if (value === 'under-50') {
+      setMinPrice('');
+      setMaxPrice('50');
+    } else if (value === '50-100') {
+      setMinPrice('50');
+      setMaxPrice('100');
+    } else if (value === '100-500') {
+      setMinPrice('100');
+      setMaxPrice('500');
+    } else if (value === 'over-500') {
+      setMinPrice('500');
+      setMaxPrice('');
+    }
+  };
+
+  const handleMinPriceChange = (e) => {
+    setMinPrice(e.target.value);
+    setPriceFilter('');
+    setPage(1);
+  };
+
+  const handleMaxPriceChange = (e) => {
+    setMaxPrice(e.target.value);
+    setPriceFilter('');
+    setPage(1);
+  };
+
+  const handleResetPrice = () => {
+    setMinPrice('');
+    setMaxPrice('');
+    setPriceFilter('');
+    setPage(1);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-purple-50 w-full overflow-x-hidden">
       {/* Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-primary-600 via-primary-700 to-primary-800 text-white py-24 w-full">
-        {/* Animated background elements */}
+        {/* Simplified background - removed heavy blur filters */}
         <div className="absolute inset-0 overflow-hidden w-full">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-float" style={{ animationDelay: '2s' }}></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500 rounded-full opacity-20"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full opacity-20"></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
             <div className="inline-block mb-4">
-              <span className="px-4 py-2 bg-white/20 backdrop-blur-md text-purple-100 text-sm font-semibold rounded-full border border-white/30">
+              <span className="px-4 py-2 bg-white/20 text-purple-100 text-sm font-semibold rounded-full border border-white/30">
                 Premium Quality Products
               </span>
             </div>
-            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-white via-purple-100 to-white bg-clip-text text-transparent">
-                Welcome to NexaStore
-              </span>
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-6 leading-tight text-white">
+              Welcome to NexaStore
             </h1>
             <p className="text-xl md:text-2xl text-purple-100 mb-8 max-w-3xl mx-auto font-light">
               Discover Amazing Products at Great Prices
@@ -115,13 +177,13 @@ const Home = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button 
                 onClick={() => document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' })}
-                className="px-8 py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-purple-50 transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-1"
+                className="px-8 py-4 bg-white text-primary-600 rounded-xl font-semibold hover:bg-purple-50 transition-colors duration-200 shadow-lg"
               >
                 Shop Now
               </button>
               <Link
                 to="/about"
-                className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition-all duration-300 text-center"
+                className="px-8 py-4 bg-transparent border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition-colors duration-200 text-center"
               >
                 Learn More
               </Link>
@@ -129,7 +191,7 @@ const Home = () => {
           </div>
         </div>
         
-        {/* Wave divider */}
+        {/* Simplified wave divider */}
         <div className="absolute bottom-0 left-0 right-0">
           <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
             <path d="M0 120L60 105C120 90 240 60 360 45C480 30 600 30 720 37.5C840 45 960 60 1080 67.5C1200 75 1320 75 1380 75L1440 75V120H1380C1320 120 1200 120 1080 120C960 120 840 120 720 120C600 120 480 120 360 120C240 120 120 120 60 120H0Z" 
@@ -149,42 +211,87 @@ const Home = () => {
             <p className="text-gray-600 text-lg">Find the perfect product for you</p>
           </div>
 
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            {/* Categories */}
-            <div className="overflow-x-auto">
-              <div className="flex flex-wrap gap-3 min-w-max lg:min-w-0">
-                {categories.map((category) => (
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-grow">
+              {/* Categories Filter */}
+              <div className="flex flex-col gap-2">
+                <label className="text-gray-700 font-semibold">Item Category</label>
+                <select
+                  value={selectedCategory}
+                  onChange={handleCategoryChange}
+                  className="px-4 py-3 border-2 border-purple-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-gray-700 font-medium cursor-pointer transition-all duration-200 w-full shadow-sm hover:border-primary-300"
+                >
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Predefined Price Filter */}
+              <div className="flex flex-col gap-2">
+                <label className="text-gray-700 font-semibold">Price Filter</label>
+                <select
+                  value={priceFilter}
+                  onChange={handlePriceFilterChange}
+                  className="px-4 py-3 border-2 border-purple-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-gray-700 font-medium cursor-pointer transition-all duration-200 w-full shadow-sm hover:border-primary-300"
+                >
+                  <option value="">All Prices</option>
+                  <option value="under-50">Under $50</option>
+                  <option value="50-100">$50 to $100</option>
+                  <option value="100-500">$100 to $500</option>
+                  <option value="over-500">Over $500</option>
+                </select>
+              </div>
+
+              {/* Custom Price Range */}
+              <div className="flex flex-col gap-2">
+                <label className="text-gray-700 font-semibold">Custom Price Range</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={minPrice}
+                    onChange={handleMinPriceChange}
+                    className="px-3 py-3 border-2 border-purple-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-gray-700 w-full shadow-sm hover:border-primary-300 min-w-0"
+                  />
+                  <span className="text-gray-400 font-medium">-</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={maxPrice}
+                    onChange={handleMaxPriceChange}
+                    className="px-3 py-3 border-2 border-purple-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-gray-700 w-full shadow-sm hover:border-primary-300 min-w-0"
+                  />
                   <button
-                    key={category}
-                    onClick={() => handleCategoryChange(category)}
-                    className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 ${
-                      selectedCategory === category
-                        ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg shadow-primary-500/50'
-                        : 'bg-white text-gray-700 hover:bg-purple-50 border-2 border-purple-100 hover:border-primary-300'
-                    }`}
+                    onClick={handleResetPrice}
+                    className="px-4 py-3 bg-red-100 text-red-600 rounded-xl font-semibold hover:bg-red-200 transition-colors shadow-sm"
                   >
-                    {category}
+                    Reset
                   </button>
-                ))}
+                </div>
               </div>
             </div>
 
-            {/* Sort */}
-            <div className="flex items-center space-x-3 bg-white p-4 rounded-xl border-2 border-purple-100 shadow-md">
-              <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
-              </svg>
-              <label className="text-gray-700 font-semibold whitespace-nowrap">Sort by:</label>
-              <select
-                value={sortBy}
-                onChange={handleSortChange}
-                className="px-4 py-2 border-2 border-purple-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-gray-700 font-medium cursor-pointer transition-all duration-200"
-              >
-                <option value="newest">Newest First</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
-              </select>
+            {/* Sort Dropdown */}
+            <div className="flex flex-col justify-end">
+              <div className="flex items-center space-x-3 bg-white p-3 md:p-4 rounded-xl border-2 border-purple-100 shadow-md h-full lg:h-[52px] lg:mt-8">
+                <svg className="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                </svg>
+                <label className="text-gray-700 font-semibold whitespace-nowrap">Sort by:</label>
+                <select
+                  value={sortBy}
+                  onChange={handleSortChange}
+                  className="px-2 py-1 border-none focus:outline-none bg-transparent text-gray-700 font-medium cursor-pointer"
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="rating">Highest Rated</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>

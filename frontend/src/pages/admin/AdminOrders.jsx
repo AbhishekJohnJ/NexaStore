@@ -50,18 +50,18 @@ const AdminOrders = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">Manage Orders</h1>
+        <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight mb-8">Manage Orders</h1>
 
-        <div className="space-y-6">
+        <div className="space-y-8">
           {orders.length === 0 ? (
-            <div className="text-center py-12 bg-white rounded-lg shadow-md">
-              <p className="text-xl text-gray-600">No orders found</p>
+            <div className="text-center py-16 bg-white rounded-3xl shadow-lg border border-gray-100">
+              <p className="text-xl text-gray-500 font-medium">No orders found</p>
             </div>
           ) : (
             orders.map((order) => (
-              <div key={order._id} className="bg-white rounded-lg shadow-md p-6">
+              <div key={order._id} className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 hover:shadow-xl transition-shadow duration-300">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <h3 className="text-lg font-bold text-gray-800">
@@ -79,7 +79,7 @@ const AdminOrders = () => {
                   </div>
                   <div className="text-right">
                     <div className="mb-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide">
                         Order Status
                       </label>
                       <select
@@ -87,7 +87,7 @@ const AdminOrders = () => {
                         onChange={(e) =>
                           handleStatusChange(order._id, e.target.value)
                         }
-                        className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 font-medium text-gray-800"
                       >
                         {statusOptions.map((status) => (
                           <option key={status} value={status}>
@@ -97,7 +97,7 @@ const AdminOrders = () => {
                       </select>
                     </div>
                     <span
-                      className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
+                      className={`inline-block px-4 py-1.5 rounded-lg text-sm font-bold shadow-sm ${
                         statusColors[order.orderStatus]
                       }`}
                     >
@@ -106,17 +106,17 @@ const AdminOrders = () => {
                   </div>
                 </div>
 
-                <div className="border-t pt-4">
-                  <h4 className="font-semibold text-gray-800 mb-3">Order Items</h4>
+                <div className="border-t border-gray-100 pt-6">
+                  <h4 className="font-bold text-gray-900 mb-4 uppercase tracking-wide text-sm">Order Items</h4>
                   {order.products.map((item, index) => (
                     <div
                       key={index}
-                      className="flex items-center space-x-4 mb-3 last:mb-0"
+                      className="flex items-center space-x-4 mb-4 last:mb-0 p-4 bg-gray-50/50 rounded-xl border border-gray-100"
                     >
                       <img
                         src={item.image}
                         alt={item.name}
-                        className="w-16 h-16 object-cover rounded-lg"
+                        className="w-16 h-16 object-cover rounded-xl shadow-sm"
                       />
                       <div className="flex-1">
                         <p className="font-medium text-gray-800">{item.name}</p>
@@ -131,32 +131,34 @@ const AdminOrders = () => {
                   ))}
                 </div>
 
-                <div className="border-t mt-4 pt-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">
+                <div className="border-t border-gray-100 mt-6 pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="bg-blue-50/30 p-5 rounded-xl border border-blue-100/50">
+                      <h4 className="font-bold text-gray-900 mb-3 uppercase tracking-wide text-sm">
                         Shipping Address
                       </h4>
-                      <p className="text-sm text-gray-600">
-                        {order.shippingAddress.fullName}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {order.shippingAddress.address}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {order.shippingAddress.city},{' '}
-                        {order.shippingAddress.postalCode}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {order.shippingAddress.country}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Phone: {order.shippingAddress.phone}
-                      </p>
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          {order.shippingAddress.fullName}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {order.shippingAddress.address}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {order.shippingAddress.city},{' '}
+                          {order.shippingAddress.postalCode}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {order.shippingAddress.country}
+                        </p>
+                        <p className="text-sm text-gray-600 mt-2">
+                          <span className="font-medium">Phone:</span> {order.shippingAddress.phone}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-600">Total Amount</p>
-                      <p className="text-3xl font-bold text-gray-800">
+                    <div className="text-right flex flex-col justify-center items-end bg-amber-50/30 p-5 rounded-xl border border-amber-100/50">
+                      <p className="text-sm font-bold text-gray-500 uppercase tracking-wide mb-1">Total Amount</p>
+                      <p className="text-4xl font-extrabold text-gray-900">
                         ${order.totalAmount.toFixed(2)}
                       </p>
                     </div>
