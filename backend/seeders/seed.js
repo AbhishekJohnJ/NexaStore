@@ -7,6 +7,15 @@ import Cart from '../models/Cart.js';
 
 dotenv.config();
 
+// ⚠️⚠️⚠️ WARNING ⚠️⚠️⚠️
+// THIS SCRIPT WILL DELETE ALL DATA IN YOUR DATABASE!
+// Only run this script if you want to completely reset your database.
+// If you have customized products or added new products via admin panel,
+// DO NOT RUN THIS SCRIPT as it will delete all your changes!
+//
+// To run: node seeders/seed.js
+// ⚠️⚠️⚠️ WARNING ⚠️⚠️⚠️
+
 const sampleProducts = [
   {
     name: 'Wireless Bluetooth Headphones',
@@ -502,6 +511,23 @@ const sampleProducts = [
 
 const seedDatabase = async () => {
   try {
+    // Safety check - require explicit confirmation
+    const args = process.argv.slice(2);
+    if (!args.includes('--confirm')) {
+      console.log('\n⚠️⚠️⚠️ DANGER ZONE ⚠️⚠️⚠️\n');
+      console.log('This script will DELETE ALL data in your database!');
+      console.log('Including:');
+      console.log('  - All users (except 2 default ones will be recreated)');
+      console.log('  - All products (replaced with seed data)');
+      console.log('  - All orders');
+      console.log('  - All carts');
+      console.log('\n⚠️ If you have customized products or added new products,');
+      console.log('⚠️ they will be PERMANENTLY DELETED!\n');
+      console.log('To run this script, use:');
+      console.log('  node seeders/seed.js --confirm\n');
+      process.exit(0);
+    }
+
     await connectDB();
 
     // Clear existing data
