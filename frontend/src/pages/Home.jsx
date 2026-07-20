@@ -99,12 +99,6 @@ const Home = () => {
 
         setProducts(mockData.products);
         setTotalPages(mockData.pages);
-        
-        // Show info toast only once
-        if (!sessionStorage.getItem('mockProductsNotified')) {
-          toast('Using demo products (backend unavailable)', { icon: 'ℹ️' });
-          sessionStorage.setItem('mockProductsNotified', 'true');
-        }
       }
     } catch (error) {
       toast.error('Failed to load products');
