@@ -4,6 +4,7 @@ import { CartContext } from '../context/CartContext';
 import { AuthContext } from '../context/AuthContext';
 import api from '../utils/api';
 import toast from 'react-hot-toast';
+import { getProductById } from '../data/mockProducts';
 
 const ProductDetails = () => {
   const { id } = useParams();
@@ -22,10 +23,24 @@ const ProductDetails = () => {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const { data } = await api.get(`/products/${id}`);
-      setProduct(data);
+      try {
+        // Try to fetch from backend first
+        const { data } = await api.get(`/products/${id}`);
+        setProduct(data);
+      } catch (error) {
+        // If backend fails, use mock product
+        console.log('Backend unavailable, using mock product');
+        const mockProduct = getProductById(id);
+        
+        if (mockProduct) {
+          setProduct(mockProduct);
+        } else {
+          toast.error('Product not found');
+          navigate('/');
+        }
+      }
     } catch (error) {
-      toast.error('Failed to fetch product');
+      toast.error('Failed to load product');
       navigate('/');
     } finally {
       setLoading(false);

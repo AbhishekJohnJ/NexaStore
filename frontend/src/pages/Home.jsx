@@ -3,6 +3,7 @@ import { useSearchParams, useLocation, Link } from 'react-router-dom';
 import api from '../utils/api';
 import ProductCard from '../components/ProductCard';
 import toast from 'react-hot-toast';
+import { getFilteredProducts } from '../data/mockProducts';
 
 const categories = [
   'All',
@@ -66,22 +67,47 @@ const Home = () => {
       setLoading(true);
       const category = selectedCategory === 'All' ? '' : selectedCategory;
       
-      const { data } = await api.get('/products', {
-        params: {
+      try {
+        // Try to fetch from backend API first
+        const { data } = await api.get('/products', {
+          params: {
+            search: debouncedSearchQuery,
+            category,
+            sort: sortBy,
+            page,
+            limit: 12,
+            minPrice: debouncedMinPrice || undefined,
+            maxPrice: debouncedMaxPrice || undefined,
+          },
+        });
+
+        setProducts(data.products);
+        setTotalPages(data.pages);
+      } catch (error) {
+        // If backend fails, use mock products (frontend fallback)
+        console.log('Backend unavailable, using mock products');
+        
+        const mockData = getFilteredProducts({
           search: debouncedSearchQuery,
           category,
-          sort: sortBy,
+          sortBy,
           page,
           limit: 12,
-          minPrice: debouncedMinPrice || undefined,
-          maxPrice: debouncedMaxPrice || undefined,
-        },
-      });
+          minPrice: debouncedMinPrice,
+          maxPrice: debouncedMaxPrice,
+        });
 
-      setProducts(data.products);
-      setTotalPages(data.pages);
+        setProducts(mockData.products);
+        setTotalPages(mockData.pages);
+        
+        // Show info toast only once
+        if (!sessionStorage.getItem('mockProductsNotified')) {
+          toast('Using demo products (backend unavailable)', { icon: 'ℹ️' });
+          sessionStorage.setItem('mockProductsNotified', 'true');
+        }
+      }
     } catch (error) {
-      toast.error('Failed to fetch products');
+      toast.error('Failed to load products');
       console.error(error);
     } finally {
       setLoading(false);
